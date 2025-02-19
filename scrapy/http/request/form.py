@@ -23,6 +23,8 @@ from w3lib.html import strip_html5_whitespace
 from scrapy.http.request import Request
 from scrapy.utils.python import is_listlike, to_bytes
 
+from scrapy.diy_coverage.diycoverage import instrument_function, track_branch
+
 if TYPE_CHECKING:
     # typing.Self requires Python 3.11
     from typing_extensions import Self
@@ -156,6 +158,7 @@ def _get_form(
     return cast(FormElement, form)
 
 
+@instrument_function({1, 2}) # TODO: UPDATE THIS
 def _get_inputs(
     form: FormElement,
     formdata: FormdataType,
