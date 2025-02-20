@@ -25,6 +25,7 @@ from twisted.trial import unittest
 import scrapy
 from scrapy.cmdline import _pop_command_name, _print_unknown_command_msg
 from scrapy.commands import ScrapyCommand, ScrapyHelpFormatter, view
+from scrapy.commands.settings import Command
 from scrapy.commands.startproject import IGNORE
 from scrapy.settings import Settings
 from scrapy.utils.python import to_unicode
@@ -54,6 +55,22 @@ class CommandSettings(unittest.TestCase):
             self.command.settings["FEEDS"], scrapy.settings.BaseSettings
         )
         self.assertEqual(dict(self.command.settings["FEEDS"]), json.loads(feeds_json))
+
+    def test_settings_getlist(self):
+        command = Command()
+        command.settings = Settings()
+        command.crawler_process = mock.Mock()
+        command.crawler_process.settings = Settings()
+        command.crawler_process.settings.set('TEST_LIST', ['a', 'b', 'c'])
+        
+        parser = argparse.ArgumentParser()
+        command.add_options(parser)
+        
+        args = parser.parse_args(['--getlist', 'TEST_LIST'])
+        
+        with mock.patch('sys.stdout', new=StringIO()) as mock_stdout:
+            command.run([], args)
+            self.assertEqual(mock_stdout.getvalue().strip(), "['a', 'b', 'c']")
 
     def test_help_formatter(self):
         formatter = ScrapyHelpFormatter(prog="scrapy")

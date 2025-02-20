@@ -54,6 +54,7 @@ class Command(ScrapyCommand):
                 print(json.dumps(s.copy_to_dict()))
             else:
                 print(s)
+        ### FIXME: The following elifs are not tested
         elif opts.getbool:
             print(settings.getbool(opts.getbool))
         elif opts.getint:
@@ -61,4 +62,5 @@ class Command(ScrapyCommand):
         elif opts.getfloat:
             print(settings.getfloat(opts.getfloat))
         elif opts.getlist:
+            ### Added test to hit this branch
             print(settings.getlist(opts.getlist))
