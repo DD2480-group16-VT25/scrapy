@@ -215,12 +215,14 @@ def binary_is_text(data: bytes) -> bool:
 def get_func_args(func: Callable[..., Any], stripself: bool = False) -> list[str]:
     """Return the argument name list of a callable object"""
     if not callable(func):
+        # This TypeError hasn't been tested
         raise TypeError(f"func must be callable, got '{type(func).__name__}'")
 
     args: list[str] = []
     try:
         sig = inspect.signature(func)
     except ValueError:
+        # This ValueError hasn't been tested
         return args
 
     if isinstance(func, partial):
