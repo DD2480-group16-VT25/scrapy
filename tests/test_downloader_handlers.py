@@ -507,6 +507,39 @@ class Http11TestCase(HttpTestCase):
             yield d
 
     @defer.inlineCallbacks
+    def test_download_with_maxsize_very_large_file_should_warn(self):
+        """Test that a warning is logged when the download warn size is exceeded. Also test that the
+        download is aborted when the download max size is exceeded. 
+        Inspired by test_download_with_maxsize_very_large_file.
+        """
+        with mock.patch("scrapy.core.downloader.handlers.http11.logger") as logger:
+            request = Request(self.getURL("largechunkedfile"))
+            # Set Spider warnsize to trigger warning
+            d = self.download_request(request, Spider("foo", download_maxsize=1500, download_warnsize=1000))
+            yield self.assertFailure(d, defer.CancelledError, error.ConnectionAborted)
+
+            def check(logger):
+                # Check for both warning messages
+                logger.warning.assert_has_calls(
+                    [
+                        mock.call(
+                            "Received more bytes than download warn size (%(warnsize)s) in request %(request)s.",
+                            {"warnsize": 1000, "request": request},
+                        ),
+                        mock.call(mock.ANY, mock.ANY),  # The maxsize warning message
+                    ],
+                    any_order=True,
+                )
+
+            # As the error message is logged in the dataReceived callback, we
+            # have to give a bit of time to the reactor to process the queue
+            # after closing the connection.
+            d = defer.Deferred()
+            d.addCallback(check)
+            reactor.callLater(0.1, d.callback, logger)
+            yield d
+
+    @defer.inlineCallbacks
     def test_download_with_maxsize_per_req(self):
         meta = {"download_maxsize": 2}
         request = Request(self.getURL("file"), meta=meta)

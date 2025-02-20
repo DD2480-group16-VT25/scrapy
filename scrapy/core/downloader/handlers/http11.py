@@ -692,6 +692,7 @@ class _ResponseReader(Protocol):
             and self._bytes_received > self._warnsize
             and not self._reached_warnsize
         ):
+            ### This branch wasn't tested before
             self._reached_warnsize = True
             logger.warning(
                 "Received more bytes than download "
