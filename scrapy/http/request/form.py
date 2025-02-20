@@ -158,7 +158,7 @@ def _get_form(
     return cast(FormElement, form)
 
 
-@instrument_function(2) # TODO: UPDATE THIS
+@instrument_function(9)
 def _get_inputs(
     form: FormElement,
     formdata: FormdataType,
@@ -172,6 +172,7 @@ def _get_inputs(
         raise ValueError("formdata should be a dict or iterable of tuples")
 
     if not formdata:
+        track_branch("_get_inputs", 1)
         formdata = []
     inputs = form.xpath(
         "descendant::textarea"
@@ -182,19 +183,41 @@ def _get_inputs(
         '  not(re:test(., "^(?:checkbox|radio)$", "i")))]]',
         namespaces={"re": "http://exslt.org/regular-expressions"},
     )
-    values: list[FormdataKVType] = [
-        (k, "" if v is None else v)
-        for k, v in (_value(e) for e in inputs)
-        if k and k not in formdata_keys
-    ]
+    # values: list[FormdataKVType] = [
+    #     (k, "" if v is None else v)
+    #     for k, v in (_value(e) for e in inputs)
+    #     if k and k not in formdata_keys
+    # ]
+
+    values: list[FormdataKVType] = []
+
+    for e in inputs:
+        track_branch("_get_inputs", 2)
+        k, v = _value(e)
+
+        if not k:
+            track_branch("_get_inputs", 3)
+            if k in formdata_keys:
+                track_branch("_get_inputs", 4)
+                if v is None:
+                    track_branch("_get_inputs", 5)
+                    v_value = ""
+                else:
+                    track_branch("_get_inputs", 6)
+                    v_value = v
+
+        values.append((k, v_value))
 
     if not dont_click:
+        track_branch("_get_inputs", 7)
         clickable = _get_clickable(clickdata, form)
         if clickable and clickable[0] not in formdata and clickable[0] is not None:
+            track_branch("_get_inputs", 8)
             values.append(clickable)
 
     formdata_items = formdata.items() if isinstance(formdata, dict) else formdata
     values.extend((k, v) for k, v in formdata_items if v is not None)
+    track_branch("_get_inputs", 9)
     return values
 
 
