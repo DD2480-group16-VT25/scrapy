@@ -7,30 +7,14 @@ from scrapy.diy_coverage.diycoverage import (
 if __name__ == "__main__":
     initialize_coverage()
 
-    module_paths = [
-        "tests.test_exporters",
-        "tests.test_spidermiddleware_depth",
-        "tests.test_middleware",
-        "tests.test_http_request",
-        "tests.test_http_cookies",
-        "tests.test_http_headers",
-        "tests.test_http_response",
-    ]
-
-    # Create a test suite
+    # Discover and run all tests in /tests directory
+    ### --- Some test will throw ERROR due to missing dependencies since
+    ### we are omitting the tox enviroment ---
     loader = unittest.TestLoader()
-    suite = unittest.TestSuite()
-
-    # Add all tests from specified test modules
-    for module_path in module_paths:
-        try:
-            tests = loader.loadTestsFromName(module_path)
-            suite.addTests(tests)
-        except Exception as e:
-            print(f"Error loading tests from {module_path}: {e}")
+    suite = loader.discover(start_dir="tests", pattern="test_*.py")
 
     # Run the test suite
-    runner = unittest.TextTestRunner(verbosity=1)
+    runner = unittest.TextTestRunner(verbosity=2)
     runner.run(suite)
 
     # Report coverage

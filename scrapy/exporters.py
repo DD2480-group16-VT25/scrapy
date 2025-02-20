@@ -71,7 +71,7 @@ class BaseItemExporter:
     def finish_exporting(self) -> None:
         pass
 
-    @instrument_function({1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12})
+    @instrument_function(14)
     def _get_serialized_fields(
         self, item: Any, default_value: Any = None, include_empty: bool | None = None
     ) -> Iterable[tuple[str, Any]]:
@@ -88,38 +88,43 @@ class BaseItemExporter:
 
         if self.fields_to_export is None:
             track_branch("_get_serialized_fields", 3)
-            field_iter = item.field_names() if include_empty else item.keys()
-        elif isinstance(self.fields_to_export, Mapping):
-            track_branch("_get_serialized_fields", 4)
             if include_empty:
+                track_branch("_get_serialized_fields", 4)
+                field_iter = item.field_names()
+            else:
                 track_branch("_get_serialized_fields", 5)
+                field_iter = item.keys()
+        elif isinstance(self.fields_to_export, Mapping):
+            track_branch("_get_serialized_fields", 6)
+            if include_empty:
+                track_branch("_get_serialized_fields", 7)
                 field_iter = self.fields_to_export.items()
             else:
-                track_branch("_get_serialized_fields", 6)
+                track_branch("_get_serialized_fields", 8)
                 field_iter = (
                     (x, y) for x, y in self.fields_to_export.items() if x in item
                 )
         elif include_empty:
-            track_branch("_get_serialized_fields", 7)
+            track_branch("_get_serialized_fields", 9)
             field_iter = self.fields_to_export
         else:
-            track_branch("_get_serialized_fields", 8)
+            track_branch("_get_serialized_fields", 10)
             field_iter = (x for x in self.fields_to_export if x in item)
 
         for field_name in field_iter:
             if isinstance(field_name, str):
-                track_branch("_get_serialized_fields", 9)
+                track_branch("_get_serialized_fields", 11)
                 item_field, output_field = field_name, field_name
             else:
-                track_branch("_get_serialized_fields", 10)
+                track_branch("_get_serialized_fields", 12)
                 item_field, output_field = field_name
 
             if item_field in item:
-                track_branch("_get_serialized_fields", 11)
+                track_branch("_get_serialized_fields", 13)
                 field_meta = item.get_field_meta(item_field)
                 value = self.serialize_field(field_meta, output_field, item[item_field])
             else:
-                track_branch("_get_serialized_fields", 12)
+                track_branch("_get_serialized_fields", 14)
                 value = default_value
 
             yield output_field, value

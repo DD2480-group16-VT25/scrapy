@@ -184,9 +184,7 @@ class SpiderMiddlewareManager(MiddlewareManager):
     # being available immediately which doesn't work when it's a wrapped coroutine.
     # It also needs @inlineCallbacks only because of downgrading so it can be removed when downgrading is removed.
     @inlineCallbacks
-    @instrument_function(
-        {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20}
-    )
+    @instrument_function(20)
     def _process_spider_output(
         self,
         response: Response,

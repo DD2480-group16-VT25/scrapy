@@ -26,7 +26,7 @@ def track_branch(function_name: str, branch_number: int) -> None:
     _COVERAGE.data[function_name]["hit_branches"].add(branch_number)
 
 
-def instrument_function(branch_points: Set[int]):
+def instrument_function(branch_points_num: int) -> Callable:
     """Decorator to instrument functions for branch coverage"""
 
     def decorator(func):
@@ -37,7 +37,7 @@ def instrument_function(branch_points: Set[int]):
             # Initialize coverage tracking for this function
             if func_name not in _COVERAGE.data:
                 _COVERAGE.data[func_name] = {
-                    "branches": branch_points,
+                    "branches": set(range(1, branch_points_num + 1)),
                     "hit_branches": set(),
                 }
             return func(*args, **kwargs)

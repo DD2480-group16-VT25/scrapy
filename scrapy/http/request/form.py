@@ -158,7 +158,7 @@ def _get_form(
     return cast(FormElement, form)
 
 
-@instrument_function({1, 2}) # TODO: UPDATE THIS
+@instrument_function(2) # TODO: UPDATE THIS
 def _get_inputs(
     form: FormElement,
     formdata: FormdataType,
