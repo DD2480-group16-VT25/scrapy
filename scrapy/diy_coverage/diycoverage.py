@@ -19,7 +19,7 @@ def initialize_coverage() -> None:
 def track_branch(function_name: str, branch_number: int) -> None:
     if function_name not in _COVERAGE.data:
         _COVERAGE.data[function_name] = {
-            "branches": {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12},
+            "branches": set(),
             "hit_branches": set(),
         }
 
