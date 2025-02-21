@@ -809,6 +809,23 @@ Sitemap: /sitemap-relative-url.xml
             ),
         )
 
+    def test_parse_sitemap_body_none(self):
+        # Test that a warning is logged when the sitemap body is None
+        spider = self.spider_class(name="example.com")
+        response = Response(url="http://example.com/sitemap.xml")
+
+        with mock.patch.object(spider, "_get_sitemap_body", return_value=None):
+            with LogCapture() as lc:
+                result = list(spider._parse_sitemap(response))
+                self.assertEqual(result, [])
+                lc.check(
+                    (
+                        "scrapy.spiders.sitemap",
+                        "WARNING",
+                        "Ignoring invalid sitemap: <200 http://example.com/sitemap.xml>",
+                    )
+                )
+
 
 class DeprecationTest(unittest.TestCase):
     def test_crawl_spider(self):
